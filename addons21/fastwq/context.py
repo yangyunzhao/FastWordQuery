@@ -20,11 +20,11 @@
 import json
 import os
 
-from anki.hooks import runHook
 from aqt import mw
 
 from .constants import VERSION
 from .utils import get_icon
+from .utils.hooks import run_local_hook
 
 __all__ = ['APP_ICON', 'config']
 
@@ -61,7 +61,7 @@ class Config(object):
             json.dump(
                 self.data, f, indent=4, sort_keys=True, ensure_ascii=False)
             f.close()
-        runHook('config.update')
+        run_local_hook('config.update')
 
     def read(self):
         """
