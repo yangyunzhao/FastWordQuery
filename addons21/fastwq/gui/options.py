@@ -22,7 +22,6 @@ import sys
 import anki
 import aqt
 import aqt.models
-import sip
 from anki.utils import isMac
 from aqt import mw
 from aqt.qt import *
@@ -107,7 +106,8 @@ class OptionsDialog(Dialog):
             return
         if self.loading_label:
             self.main_layout.removeWidget(self.loading_label)
-            sip.delete(self.loading_label)
+            self.loading_label.setParent(None)
+            self.loading_label.deleteLater()
             self.loading_label = None
         models_layout = QHBoxLayout()
         # add buttons
