@@ -144,7 +144,7 @@ def customize_addcards():
         add a button in add card window
         '''
         bb = self.form.buttonBox
-        ar = QDialogButtonBox.ActionRole
+        ar = QDialogButtonBox.ButtonRole.ActionRole
         # button
         fastwqBtn = QPushButton(_("QUERY") + u" " + downArrow())
         fastwqBtn.setShortcut(QKeySequence(my_shortcut))
