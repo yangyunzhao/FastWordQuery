@@ -158,7 +158,7 @@ class DictManageDialog(Dialog):
             text.setPlainText(open(path, 'r', encoding="utf-8").read())
         else:
             text.setPlainText(unicode(open(path).read(), "utf8"))
-        if d.exec_():
+        if d.exec():
             self.on_accept_edit(path, text)
 
     def on_accept_edit(self, path, text):

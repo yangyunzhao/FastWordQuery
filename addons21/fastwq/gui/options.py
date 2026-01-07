@@ -187,7 +187,7 @@ class OptionsDialog(Dialog):
     def show_paras(self):
         '''open setting dialog'''
         dialog = SettingDialog(self, u'Setting')
-        dialog.exec_()
+        dialog.exec()
         dialog.destroy()
 
     # def check_updates(self):
@@ -666,7 +666,10 @@ class CTabBar(QTabBar):
         self.setDrawBase(False)
         # edit
         self._editor = QLineEdit(self)
-        self._editor.setWindowFlags(Qt.Popup)
+        popup_flag = getattr(Qt, "Popup", None)
+        if popup_flag is None:
+            popup_flag = Qt.WindowType.Popup
+        self._editor.setWindowFlags(popup_flag)
         self._editor.setMaxLength(20)
         self._editor.editingFinished.connect(self.handleEditingFinished)
         self._editor.installEventFilter(self)
