@@ -57,7 +57,10 @@ class OptionsDialog(Dialog):
         # initlizing info
         self.main_layout = QVBoxLayout()
         self.loading_label = QLabel(_('INITLIZING_DICT'))
-        self.main_layout.addWidget(self.loading_label, 0, Qt.AlignCenter)
+        align_center = getattr(Qt, "AlignCenter", None)
+        if align_center is None:
+            align_center = Qt.AlignmentFlag.AlignCenter
+        self.main_layout.addWidget(self.loading_label, 0, align_center)
         # self.loading_layout.addLayout(models_layout)
         self.setLayout(self.main_layout)
         # initlize properties
