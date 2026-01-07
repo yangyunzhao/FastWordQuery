@@ -20,7 +20,6 @@
 import os
 import sys
 
-from aqt.forms.editaddon import Ui_Dialog
 from aqt.qt import *
 
 from ..context import config
@@ -145,24 +144,30 @@ class DictManageDialog(Dialog):
     def on_edit(self, path):
         '''edit dictionary file'''
         d = QDialog(self)
-        frm = Ui_Dialog()
-        frm.setupUi(d)
         d.setWindowTitle(os.path.basename(path))
+        layout = QVBoxLayout(d)
+        text = QTextEdit(d)
+        layout.addWidget(text)
+        btnbox = QDialogButtonBox(
+            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, d)
+        btnbox.accepted.connect(d.accept)
+        btnbox.rejected.connect(d.reject)
+        layout.addWidget(btnbox)
         # 2x3 compatible
         if sys.hexversion >= 0x03000000:
-            frm.text.setPlainText(open(path, 'r', encoding="utf-8").read())
+            text.setPlainText(open(path, 'r', encoding="utf-8").read())
         else:
-            frm.text.setPlainText(unicode(open(path).read(), "utf8"))
-        d.accepted.connect(lambda: self.on_accept_edit(path, frm))
-        d.exec_()
+            text.setPlainText(unicode(open(path).read(), "utf8"))
+        if d.exec_():
+            self.on_accept_edit(path, text)
 
-    def on_accept_edit(self, path, frm):
+    def on_accept_edit(self, path, text):
         '''save dictionary file'''
         # 2x3 compatible
         if sys.hexversion >= 0x03000000:
-            open(path, "w", encoding='utf-8').write(frm.text.toPlainText())
+            open(path, "w", encoding='utf-8').write(text.toPlainText())
         else:
-            open(path, "w").write(frm.text.toPlainText().encode("utf8"))
+            open(path, "w").write(text.toPlainText().encode("utf8"))
 
     def accept(self):
         '''ok button clicked'''
