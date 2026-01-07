@@ -22,7 +22,6 @@ import sys
 import anki
 import aqt
 import aqt.models
-import sip
 from anki.utils import isMac
 from aqt import mw
 from aqt.qt import *
@@ -58,7 +57,10 @@ class OptionsDialog(Dialog):
         # initlizing info
         self.main_layout = QVBoxLayout()
         self.loading_label = QLabel(_('INITLIZING_DICT'))
-        self.main_layout.addWidget(self.loading_label, 0, Qt.AlignCenter)
+        align_center = getattr(Qt, "AlignCenter", None)
+        if align_center is None:
+            align_center = Qt.AlignmentFlag.AlignCenter
+        self.main_layout.addWidget(self.loading_label, 0, align_center)
         # self.loading_layout.addLayout(models_layout)
         self.setLayout(self.main_layout)
         # initlize properties
@@ -107,7 +109,8 @@ class OptionsDialog(Dialog):
             return
         if self.loading_label:
             self.main_layout.removeWidget(self.loading_label)
-            sip.delete(self.loading_label)
+            self.loading_label.setParent(None)
+            self.loading_label.deleteLater()
             self.loading_label = None
         models_layout = QHBoxLayout()
         # add buttons
@@ -184,7 +187,7 @@ class OptionsDialog(Dialog):
     def show_paras(self):
         '''open setting dialog'''
         dialog = SettingDialog(self, u'Setting')
-        dialog.exec_()
+        dialog.exec()
         dialog.destroy()
 
     # def check_updates(self):
@@ -663,7 +666,10 @@ class CTabBar(QTabBar):
         self.setDrawBase(False)
         # edit
         self._editor = QLineEdit(self)
-        self._editor.setWindowFlags(Qt.Popup)
+        popup_flag = getattr(Qt, "Popup", None)
+        if popup_flag is None:
+            popup_flag = Qt.WindowType.Popup
+        self._editor.setWindowFlags(popup_flag)
         self._editor.setMaxLength(20)
         self._editor.editingFinished.connect(self.handleEditingFinished)
         self._editor.installEventFilter(self)
