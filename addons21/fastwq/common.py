@@ -19,7 +19,6 @@
 
 from operator import itemgetter
 
-from anki.hooks import addHook, remHook, wrap
 from aqt import mw
 from aqt.addcards import AddCards
 from aqt.qt import *
@@ -31,6 +30,7 @@ from .lang import _
 from .query import query_from_browser, query_from_editor_fields
 from .service import service_pool
 from .utils import get_icon
+from .utils.hooks import add_anki_hook, add_local_hook, rem_local_hook, wrap
 
 __all__ = [
     'browser_menu', 'customize_addcards', 'config_menu', 'context_menu'
@@ -61,7 +61,7 @@ def browser_menu():
     add add-on's menu to browser window
     """
 
-    def on_setup_menus(browser):
+    def on_setup_menus(browser, *args):
         """
         on browser setupMenus was called
         """
@@ -73,7 +73,7 @@ def browser_menu():
             try:
                 menu.clear()
             except RuntimeError:
-                remHook('config.update', init_fastwq_menu)
+                rem_local_hook('config.update', init_fastwq_menu)
                 return
             # Query Selected
             action = QAction(_('QUERY_SELECTED'), browser)
@@ -129,9 +129,9 @@ def browser_menu():
 
         # end init_fastwq_menu
         init_fastwq_menu()
-        addHook('config.update', init_fastwq_menu)
+        add_local_hook('config.update', init_fastwq_menu)
 
-    addHook('browser.setupMenus', on_setup_menus)
+    add_anki_hook('browser.setupMenus', on_setup_menus)
 
 
 def customize_addcards():
@@ -144,7 +144,7 @@ def customize_addcards():
         add a button in add card window
         '''
         bb = self.form.buttonBox
-        ar = QDialogButtonBox.ActionRole
+        ar = QDialogButtonBox.ButtonRole.ActionRole
         # button
         fastwqBtn = QPushButton(_("QUERY") + u" " + downArrow())
         fastwqBtn.setShortcut(QKeySequence(my_shortcut))
@@ -203,13 +203,17 @@ def config_menu():
 def context_menu():
     '''mouse right click menu'''
 
-    def on_setup_menus(web_view, menu):
+    def on_setup_menus(web_view, menu, *args):
         """
         add context menu to webview
         """
-        if not isinstance(web_view.editor.currentField, int):
+        editor = getattr(web_view, 'editor', None)
+        if editor is None:
+            editor = web_view
+            web_view = getattr(editor, 'web', None)
+        if not isinstance(getattr(editor, 'currentField', None), int):
             return
-        current_model_id = web_view.editor.note.model()['id']
+        current_model_id = editor.note.model()['id']
         conf = config.get_maps(current_model_id)
         maps_list = conf if isinstance(conf, list) else conf['list']
         curr_flds = []
@@ -220,8 +224,8 @@ def context_menu():
                 if m.get('word_checked', False):
                     word_ord = mord
                     break
-            if web_view.editor.currentField != word_ord:
-                each = maps[web_view.editor.currentField]
+            if editor.currentField != word_ord:
+                each = maps[editor.currentField]
                 ignore = each.get('ignore', False)
                 if not ignore:
                     dict_unique = each.get('dict_unique', '').strip()
@@ -238,7 +242,7 @@ def context_menu():
 
         submenu = menu.addMenu(_('QUERY'))
         submenu.addAction(
-            _('ALL_FIELDS'), lambda: query_from_editor_fields(web_view.editor),
+            _('ALL_FIELDS'), lambda: query_from_editor_fields(editor),
             QKeySequence(my_shortcut))
         if len(curr_flds) > 0:
             # quer hook method
@@ -248,7 +252,7 @@ def context_menu():
                     'def', 0)
                 set_options_def(current_model_id, i)
                 query_from_editor_fields(
-                    web_view.editor, fields=[web_view.editor.currentField])
+                    editor, fields=[editor.currentField])
                 set_options_def(current_model_id, maps_old_def)
 
             # sub menu
@@ -258,6 +262,9 @@ def context_menu():
                 submenu.addAction(
                     c['name'], lambda i=c['def']: query_from_editor_hook(i))
             submenu.addSeparator()
-        submenu.addAction(_("OPTIONS"), lambda: show_options(web_view, web_view.editor.note.model()['id']))
+        menu_parent = web_view if web_view is not None else editor
+        submenu.addAction(
+            _("OPTIONS"),
+            lambda: show_options(menu_parent, editor.note.model()['id']))
 
-    addHook('EditorWebView.contextMenuEvent', on_setup_menus)
+    add_anki_hook('EditorWebView.contextMenuEvent', on_setup_menus)
