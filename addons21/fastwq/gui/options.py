@@ -132,7 +132,10 @@ class OptionsDialog(Dialog):
         tab_corner = QWidget()
         tab_corner_layout = QHBoxLayout()
         tab_corner_layout.setSpacing(1)
-        tab_corner_layout.setSizeConstraint(QLayout.SetMinAndMaxSize)
+        size_constraint = getattr(QLayout, "SetMinAndMaxSize", None)
+        if size_constraint is None:
+            size_constraint = QLayout.SizeConstraint.SetMinAndMaxSize
+        tab_corner_layout.setSizeConstraint(size_constraint)
         tab_corner_layout.setContentsMargins(0, 0, 0, 0)
         tab_corner.setLayout(tab_corner_layout)
         tab_add_button = QToolButton(self)
@@ -676,11 +679,17 @@ class CTabBar(QTabBar):
 
     def eventFilter(self, widget, event):
         bhide = False
-        if event.type() == QEvent.MouseButtonPress:
+        mouse_press = getattr(QEvent, "MouseButtonPress", None)
+        if mouse_press is None:
+            mouse_press = QEvent.Type.MouseButtonPress
+        key_press = getattr(QEvent, "KeyPress", None)
+        if key_press is None:
+            key_press = QEvent.Type.KeyPress
+        if event.type() == mouse_press:
             if not self._editor.geometry().contains(event.globalPos()):
                 bhide = True
         if not bhide:
-            if event.type() == QEvent.KeyPress:
+            if event.type() == key_press:
                 if event.key() == Qt.Key_Escape:
                     bhide = True
         if bhide:
