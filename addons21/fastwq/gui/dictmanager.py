@@ -45,7 +45,10 @@ class DictManageDialog(Dialog):
         self.main_layout = QVBoxLayout()
         self.setLayout(self.main_layout)
         self._options = list()
-        btnbox = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
+        ok_button = getattr(QDialogButtonBox, "Ok", None)
+        if ok_button is None:
+            ok_button = QDialogButtonBox.StandardButton.Ok
+        btnbox = QDialogButtonBox(ok_button, Qt.Horizontal, self)
         btnbox.accepted.connect(self.accept)
         self.scroll = QWidget()
         self.scroll.setMinimumSize(250, 1100)
@@ -148,8 +151,13 @@ class DictManageDialog(Dialog):
         layout = QVBoxLayout(d)
         text = QTextEdit(d)
         layout.addWidget(text)
-        btnbox = QDialogButtonBox(
-            QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, d)
+        ok_button = getattr(QDialogButtonBox, "Ok", None)
+        if ok_button is None:
+            ok_button = QDialogButtonBox.StandardButton.Ok
+        cancel_button = getattr(QDialogButtonBox, "Cancel", None)
+        if cancel_button is None:
+            cancel_button = QDialogButtonBox.StandardButton.Cancel
+        btnbox = QDialogButtonBox(ok_button | cancel_button, Qt.Horizontal, d)
         btnbox.accepted.connect(d.accept)
         btnbox.rejected.connect(d.reject)
         layout.addWidget(btnbox)

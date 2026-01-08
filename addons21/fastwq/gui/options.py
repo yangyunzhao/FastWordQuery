@@ -167,7 +167,10 @@ class OptionsDialog(Dialog):
             '<a href="{url}">User Guide</a>'.format(url=Endpoint.user_guide))
         home_label.setOpenExternalLinks(True)
         # buttons
-        btnbox = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
+        ok_button = getattr(QDialogButtonBox, "Ok", None)
+        if ok_button is None:
+            ok_button = QDialogButtonBox.StandardButton.Ok
+        btnbox = QDialogButtonBox(ok_button, Qt.Horizontal, self)
         btnbox.accepted.connect(self.accept)
         bottom_layout.addWidget(paras_btn)
         # bottom_layout.addWidget(chk_update_btn)

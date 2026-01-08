@@ -54,7 +54,10 @@ class FoldersManageDialog(Dialog):
         chk_layout = QHBoxLayout()
         chk_layout.addWidget(self.chk_use_filename)
         chk_layout.addWidget(self.chk_export_media)
-        btnbox = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
+        ok_button = getattr(QDialogButtonBox, "Ok", None)
+        if ok_button is None:
+            ok_button = QDialogButtonBox.StandardButton.Ok
+        btnbox = QDialogButtonBox(ok_button, Qt.Horizontal, self)
         btnbox.accepted.connect(self.accept)
         layout.addLayout(btn_layout)
         layout.addWidget(self.folders_lst)
