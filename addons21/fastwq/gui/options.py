@@ -243,16 +243,28 @@ class OptionsDialog(Dialog):
             self.removeTab(0, True)
         # tabs
         conf = config.get_maps(self.current_model['id'])
-        maps_list = {
-            'list': [conf],
-            'def': 0
-        } if isinstance(conf, list) else conf
-        for maps in maps_list['list']:
-            self.addTab(maps, False)
+        if isinstance(conf, list):
+            maps_list = {'list': [conf], 'def': 0}
+        else:
+            maps_list = conf or {}
+            if 'list' not in maps_list:
+                maps_list = {'list': [], 'def': 0}
+        maps_items = maps_list.get('list') or []
+        if not maps_items:
+            self.addTab(None, False)
+        else:
+            for maps in maps_items:
+                self.addTab(maps, False)
+        def_index = maps_list.get('def', 0)
+        if not isinstance(def_index, int):
+            def_index = 0
+        if def_index < 0 or def_index >= len(self.tabs):
+            def_index = 0
         self.tab_widget.currentChanged.connect(self.changedTab)
         # value
-        self.changedTab(maps_list['def'])
-        self.tab_widget.setCurrentIndex(maps_list['def'])
+        if self.tabs:
+            self.changedTab(def_index)
+            self.tab_widget.setCurrentIndex(def_index)
         # size
         self.resize(
             WIDGET_SIZE.dialog_width,
@@ -291,6 +303,8 @@ class OptionsDialog(Dialog):
                 self.tab_widget.setTabIcon(k, self._NULL_ICON)
             # add flag
             self.tab_widget.setTabIcon(i, self._OK_ICON)
+        if i < 0 or i >= len(self.tabs):
+            return
         self.tabs[i].build_layout()
 
     def show_models(self):
