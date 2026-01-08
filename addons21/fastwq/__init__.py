@@ -20,8 +20,9 @@
 import ssl
 import sys
 
-from anki.hooks import addHook
 from anki.utils import isMac
+
+from .utils.hooks import add_anki_hook
 
 sys.dont_write_bytecode = True
 if isMac:
@@ -33,7 +34,7 @@ shortcut = ('Ctrl+Alt' if isMac else 'Ctrl') + '+Q'
 ###################################################
 
 
-def start_here():
+def start_here(*_args, **_kwargs):
     from . import common as fastwq
     from .context import config
     config.read()
@@ -46,4 +47,4 @@ def start_here():
         fastwq.customize_addcards()
 
 
-addHook("profileLoaded", start_here)
+add_anki_hook("profileLoaded", start_here)

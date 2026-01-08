@@ -22,7 +22,6 @@ import sys
 import anki
 import aqt
 import aqt.models
-import sip
 from anki.utils import isMac
 from aqt import mw
 from aqt.qt import *
@@ -58,7 +57,10 @@ class OptionsDialog(Dialog):
         # initlizing info
         self.main_layout = QVBoxLayout()
         self.loading_label = QLabel(_('INITLIZING_DICT'))
-        self.main_layout.addWidget(self.loading_label, 0, Qt.AlignCenter)
+        align_center = getattr(Qt, "AlignCenter", None)
+        if align_center is None:
+            align_center = Qt.AlignmentFlag.AlignCenter
+        self.main_layout.addWidget(self.loading_label, 0, align_center)
         # self.loading_layout.addLayout(models_layout)
         self.setLayout(self.main_layout)
         # initlize properties
@@ -107,7 +109,8 @@ class OptionsDialog(Dialog):
             return
         if self.loading_label:
             self.main_layout.removeWidget(self.loading_label)
-            sip.delete(self.loading_label)
+            self.loading_label.setParent(None)
+            self.loading_label.deleteLater()
             self.loading_label = None
         models_layout = QHBoxLayout()
         # add buttons
@@ -129,7 +132,10 @@ class OptionsDialog(Dialog):
         tab_corner = QWidget()
         tab_corner_layout = QHBoxLayout()
         tab_corner_layout.setSpacing(1)
-        tab_corner_layout.setSizeConstraint(QLayout.SetMinAndMaxSize)
+        size_constraint = getattr(QLayout, "SetMinAndMaxSize", None)
+        if size_constraint is None:
+            size_constraint = QLayout.SizeConstraint.SetMinAndMaxSize
+        tab_corner_layout.setSizeConstraint(size_constraint)
         tab_corner_layout.setContentsMargins(0, 0, 0, 0)
         tab_corner.setLayout(tab_corner_layout)
         tab_add_button = QToolButton(self)
@@ -161,7 +167,13 @@ class OptionsDialog(Dialog):
             '<a href="{url}">User Guide</a>'.format(url=Endpoint.user_guide))
         home_label.setOpenExternalLinks(True)
         # buttons
-        btnbox = QDialogButtonBox(QDialogButtonBox.Ok, Qt.Horizontal, self)
+        ok_button = getattr(QDialogButtonBox, "Ok", None)
+        if ok_button is None:
+            ok_button = QDialogButtonBox.StandardButton.Ok
+        orientation = getattr(Qt, "Horizontal", None)
+        if orientation is None:
+            orientation = Qt.Orientation.Horizontal
+        btnbox = QDialogButtonBox(ok_button, orientation, self)
         btnbox.accepted.connect(self.accept)
         bottom_layout.addWidget(paras_btn)
         # bottom_layout.addWidget(chk_update_btn)
@@ -184,7 +196,7 @@ class OptionsDialog(Dialog):
     def show_paras(self):
         '''open setting dialog'''
         dialog = SettingDialog(self, u'Setting')
-        dialog.exec_()
+        dialog.exec()
         dialog.destroy()
 
     # def check_updates(self):
@@ -663,18 +675,27 @@ class CTabBar(QTabBar):
         self.setDrawBase(False)
         # edit
         self._editor = QLineEdit(self)
-        self._editor.setWindowFlags(Qt.Popup)
+        popup_flag = getattr(Qt, "Popup", None)
+        if popup_flag is None:
+            popup_flag = Qt.WindowType.Popup
+        self._editor.setWindowFlags(popup_flag)
         self._editor.setMaxLength(20)
         self._editor.editingFinished.connect(self.handleEditingFinished)
         self._editor.installEventFilter(self)
 
     def eventFilter(self, widget, event):
         bhide = False
-        if event.type() == QEvent.MouseButtonPress:
+        mouse_press = getattr(QEvent, "MouseButtonPress", None)
+        if mouse_press is None:
+            mouse_press = QEvent.Type.MouseButtonPress
+        key_press = getattr(QEvent, "KeyPress", None)
+        if key_press is None:
+            key_press = QEvent.Type.KeyPress
+        if event.type() == mouse_press:
             if not self._editor.geometry().contains(event.globalPos()):
                 bhide = True
         if not bhide:
-            if event.type() == QEvent.KeyPress:
+            if event.type() == key_press:
                 if event.key() == Qt.Key_Escape:
                     bhide = True
         if bhide:
