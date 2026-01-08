@@ -101,7 +101,10 @@ class SettingDialog(Dialog):
             reset_button = QDialogButtonBox.StandardButton.Reset
         resetbtn.setStandardButtons(reset_button)
         resetbtn.clicked.connect(self.reset)
-        hbox.setAlignment(Qt.AlignRight)
+        align_right = getattr(Qt, "AlignRight", None)
+        if align_right is None:
+            align_right = Qt.AlignmentFlag.AlignRight
+        hbox.setAlignment(align_right)
         hbox.addSpacing(300)
         hbox.addWidget(resetbtn)
         hbox.addWidget(okbtn)
@@ -116,7 +119,13 @@ class SettingDialog(Dialog):
         self.input_cloze_str = input_cloze_str
         self.input_sound_str = input_sound_str
 
-        layout.setAlignment(Qt.AlignTop | Qt.AlignLeft)
+        align_top = getattr(Qt, "AlignTop", None)
+        if align_top is None:
+            align_top = Qt.AlignmentFlag.AlignTop
+        align_left = getattr(Qt, "AlignLeft", None)
+        if align_left is None:
+            align_left = Qt.AlignmentFlag.AlignLeft
+        layout.setAlignment(align_top | align_left)
         self.setLayout(layout)
 
     def accept(self):
