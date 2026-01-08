@@ -170,7 +170,10 @@ class OptionsDialog(Dialog):
         ok_button = getattr(QDialogButtonBox, "Ok", None)
         if ok_button is None:
             ok_button = QDialogButtonBox.StandardButton.Ok
-        btnbox = QDialogButtonBox(ok_button, Qt.Horizontal, self)
+        orientation = getattr(Qt, "Horizontal", None)
+        if orientation is None:
+            orientation = Qt.Orientation.Horizontal
+        btnbox = QDialogButtonBox(ok_button, orientation, self)
         btnbox.accepted.connect(self.accept)
         bottom_layout.addWidget(paras_btn)
         # bottom_layout.addWidget(chk_update_btn)

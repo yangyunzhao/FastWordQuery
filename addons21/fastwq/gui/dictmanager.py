@@ -48,7 +48,10 @@ class DictManageDialog(Dialog):
         ok_button = getattr(QDialogButtonBox, "Ok", None)
         if ok_button is None:
             ok_button = QDialogButtonBox.StandardButton.Ok
-        btnbox = QDialogButtonBox(ok_button, Qt.Horizontal, self)
+        orientation = getattr(Qt, "Horizontal", None)
+        if orientation is None:
+            orientation = Qt.Orientation.Horizontal
+        btnbox = QDialogButtonBox(ok_button, orientation, self)
         btnbox.accepted.connect(self.accept)
         self.scroll = QWidget()
         self.scroll.setMinimumSize(250, 1100)
@@ -157,7 +160,10 @@ class DictManageDialog(Dialog):
         cancel_button = getattr(QDialogButtonBox, "Cancel", None)
         if cancel_button is None:
             cancel_button = QDialogButtonBox.StandardButton.Cancel
-        btnbox = QDialogButtonBox(ok_button | cancel_button, Qt.Horizontal, d)
+        orientation = getattr(Qt, "Horizontal", None)
+        if orientation is None:
+            orientation = Qt.Orientation.Horizontal
+        btnbox = QDialogButtonBox(ok_button | cancel_button, orientation, d)
         btnbox.accepted.connect(d.accept)
         btnbox.rejected.connect(d.reject)
         layout.addWidget(btnbox)

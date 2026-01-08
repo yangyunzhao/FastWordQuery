@@ -57,7 +57,10 @@ class FoldersManageDialog(Dialog):
         ok_button = getattr(QDialogButtonBox, "Ok", None)
         if ok_button is None:
             ok_button = QDialogButtonBox.StandardButton.Ok
-        btnbox = QDialogButtonBox(ok_button, Qt.Horizontal, self)
+        orientation = getattr(Qt, "Horizontal", None)
+        if orientation is None:
+            orientation = Qt.Orientation.Horizontal
+        btnbox = QDialogButtonBox(ok_button, orientation, self)
         btnbox.accepted.connect(self.accept)
         layout.addLayout(btn_layout)
         layout.addWidget(self.folders_lst)
