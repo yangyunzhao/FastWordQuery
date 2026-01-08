@@ -53,9 +53,23 @@ def inspect_note(note):
     """
 
     conf = config.get_maps(note.model()['id'])
-    maps_list = {'list': [conf], 'def': 0} if isinstance(conf, list) else conf
-    maps = maps_list['list'][maps_list['def']]
-    maps = maps if isinstance(maps, list) else maps['fields']
+    if isinstance(conf, list):
+        maps_list = {'list': [conf], 'def': 0}
+    else:
+        maps_list = conf or {}
+        if 'list' not in maps_list:
+            maps_list = {'list': [], 'def': 0}
+    maps_items = maps_list.get('list') or []
+    def_index = maps_list.get('def', 0)
+    if not isinstance(def_index, int):
+        def_index = 0
+    if def_index < 0 or def_index >= len(maps_items):
+        def_index = 0
+    if maps_items:
+        maps = maps_items[def_index]
+        maps = maps if isinstance(maps, list) else maps.get('fields', [])
+    else:
+        maps = []
     for i, m in enumerate(maps):
         if m.get('word_checked', False):
             word_ord = i
@@ -68,7 +82,10 @@ def inspect_note(note):
     def purify_word(word):
         return word.strip() if word else ''
 
-    word = purify_word(note.fields[word_ord])
+    if note.fields:
+        word = purify_word(note.fields[word_ord])
+    else:
+        word = ''
     return word_ord, word, maps
 
 
