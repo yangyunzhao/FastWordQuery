@@ -90,10 +90,16 @@ class SettingDialog(Dialog):
 
         hbox = QHBoxLayout()
         okbtn = QDialogButtonBox(parent=self)
-        okbtn.setStandardButtons(QDialogButtonBox.Ok)
+        ok_button = getattr(QDialogButtonBox, "Ok", None)
+        if ok_button is None:
+            ok_button = QDialogButtonBox.StandardButton.Ok
+        okbtn.setStandardButtons(ok_button)
         okbtn.clicked.connect(self.accept)
         resetbtn = QDialogButtonBox(parent=self)
-        resetbtn.setStandardButtons(QDialogButtonBox.Reset)
+        reset_button = getattr(QDialogButtonBox, "Reset", None)
+        if reset_button is None:
+            reset_button = QDialogButtonBox.StandardButton.Reset
+        resetbtn.setStandardButtons(reset_button)
         resetbtn.clicked.connect(self.reset)
         hbox.setAlignment(Qt.AlignRight)
         hbox.addSpacing(300)
