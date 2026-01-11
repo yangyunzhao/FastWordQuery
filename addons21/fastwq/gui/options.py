@@ -362,7 +362,10 @@ class TabContent(QScrollArea):
         # dicts mapping
         dicts = QWidget(self)
         dicts.setLayout(QGridLayout())
-        self.setFrameShape(QFrame.NoFrame)
+        no_frame = getattr(QFrame, "NoFrame", None)
+        if no_frame is None:
+            no_frame = QFrame.Shape.NoFrame
+        self.setFrameShape(no_frame)
         self.setWidgetResizable(True)
         self.setWidget(dicts)
         self.dicts_layout = dicts.layout()
