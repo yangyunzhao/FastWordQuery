@@ -127,7 +127,10 @@ class ProgressWindow(object):
         if value:
             self._win.setValue(value)
         if process and elapsed >= 0.2:
-            self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+            exclude_input = getattr(QEventLoop, "ExcludeUserInputEvents", None)
+            if exclude_input is None:
+                exclude_input = QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents
+            self.app.processEvents(exclude_input)
             self._last_update = time.time()
 
     def _set_busy(self):
