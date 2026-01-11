@@ -481,8 +481,20 @@ class TabContent(QScrollArea):
         dict_combo.setMinimumSize(WIDGET_SIZE.map_dict_width, 0)
         dict_combo.setMaximumSize(WIDGET_SIZE.map_dict_width,
                                   WIDGET_SIZE.map_max_height)
-        dict_combo.setFocusPolicy(Qt.TabFocus | Qt.ClickFocus | Qt.StrongFocus
-                                  | Qt.WheelFocus)
+        focus_tab = getattr(Qt, "TabFocus", None)
+        if focus_tab is None:
+            focus_tab = Qt.FocusPolicy.TabFocus
+        focus_click = getattr(Qt, "ClickFocus", None)
+        if focus_click is None:
+            focus_click = Qt.FocusPolicy.ClickFocus
+        focus_strong = getattr(Qt, "StrongFocus", None)
+        if focus_strong is None:
+            focus_strong = Qt.FocusPolicy.StrongFocus
+        focus_wheel = getattr(Qt, "WheelFocus", None)
+        if focus_wheel is None:
+            focus_wheel = Qt.FocusPolicy.WheelFocus
+        dict_combo.setFocusPolicy(focus_tab | focus_click | focus_strong
+                                  | focus_wheel)
         ignore = not self.fill_dict_combo_options(dict_combo, dict_unique,
                                                   self._services) or ignore
         dict_unique = dict_combo.itemData(dict_combo.currentIndex())
