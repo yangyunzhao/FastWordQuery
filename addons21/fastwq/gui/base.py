@@ -43,8 +43,10 @@ class Dialog(QDialog):
         super(Dialog, self).__init__(parent)
 
         self.setModal(True)
-        self.setWindowFlags(
-            self.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        help_hint = getattr(Qt, "WindowContextHelpButtonHint", None)
+        if help_hint is None:
+            help_hint = Qt.WindowType.WindowContextHelpButtonHint
+        self.setWindowFlags(self.windowFlags() & ~help_hint)
         self.setWindowIcon(APP_ICON)
         self.setWindowTitle(self._title)
         # 2 & 3 & mac compatible
