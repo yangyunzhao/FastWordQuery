@@ -393,7 +393,13 @@ class TabContent(QScrollArea):
             if s:
                 label = QLabel(_(s))
                 label.setFont(f)
-                label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+                policy_preferred = getattr(QSizePolicy, "Preferred", None)
+                if policy_preferred is None:
+                    policy_preferred = QSizePolicy.Policy.Preferred
+                policy_fixed = getattr(QSizePolicy, "Fixed", None)
+                if policy_fixed is None:
+                    policy_fixed = QSizePolicy.Policy.Fixed
+                label.setSizePolicy(policy_preferred, policy_fixed)
                 self.dicts_layout.addWidget(label, 0, i)
 
         # ignore all
@@ -463,7 +469,10 @@ class TabContent(QScrollArea):
 
         # check
         word_check_btn = QRadioButton(fld_name)
-        word_check_btn.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        policy_fixed = getattr(QSizePolicy, "Fixed", None)
+        if policy_fixed is None:
+            policy_fixed = QSizePolicy.Policy.Fixed
+        word_check_btn.setSizePolicy(policy_fixed, policy_fixed)
         word_check_btn.setCheckable(True)
         word_check_btn.setChecked(word_checked)
         self.radio_group.addButton(word_check_btn)

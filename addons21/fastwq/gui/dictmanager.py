@@ -74,7 +74,13 @@ class DictManageDialog(Dialog):
             if s:
                 label = QLabel(_(s))
                 label.setFont(f)
-                label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+                policy_preferred = getattr(QSizePolicy, "Preferred", None)
+                if policy_preferred is None:
+                    policy_preferred = QSizePolicy.Policy.Preferred
+                policy_fixed = getattr(QSizePolicy, "Fixed", None)
+                if policy_fixed is None:
+                    policy_fixed = QSizePolicy.Policy.Fixed
+                label.setSizePolicy(policy_preferred, policy_fixed)
                 self.dicts_layout.addWidget(label, 0, i)
         # enabled all
         self.enabled_all_check_btn = QCheckBox(_('DICTS_NAME'))
