@@ -117,7 +117,7 @@ class DictManageDialog(Dialog):
         )
         # button
         check_btn = QCheckBox(title)
-        check_btn.setMinimumSize(WIDGET_SIZE.map_dict_width * 1.5, 0)
+        check_btn.setMinimumSize(int(WIDGET_SIZE.map_dict_width * 1.5), 0)
         check_btn.setEnabled(True)
         check_btn.setChecked(enabled)
         edit_btn = QToolButton(self)
