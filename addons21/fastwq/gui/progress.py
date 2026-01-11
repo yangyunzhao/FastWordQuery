@@ -84,13 +84,18 @@ class ProgressWindow(object):
         label = label or _("Processing...")
         parent = parent or self.app.activeWindow() or self.mw
         self._win = QProgressDialog(label, '', min, max, parent)
-        self._win.setWindowModality(Qt.ApplicationModal)
+        modality = getattr(Qt, "ApplicationModal", None)
+        if modality is None:
+            modality = Qt.WindowModality.ApplicationModal
+        self._win.setWindowModality(modality)
         self._win.setCancelButton(None)
         self._win.canceled.connect(self.finish)
         self._win.setWindowTitle("FastWQ - Querying...")
         self._win.setModal(True)
-        self._win.setWindowFlags(
-            self._win.windowFlags() & ~Qt.WindowContextHelpButtonHint)
+        help_hint = getattr(Qt, "WindowContextHelpButtonHint", None)
+        if help_hint is None:
+            help_hint = Qt.WindowType.WindowContextHelpButtonHint
+        self._win.setWindowFlags(self._win.windowFlags() & ~help_hint)
         self._win.setWindowIcon(APP_ICON)
         self._win.setAutoReset(True)
         self._win.setAutoClose(True)
@@ -122,12 +127,18 @@ class ProgressWindow(object):
         if value:
             self._win.setValue(value)
         if process and elapsed >= 0.2:
-            self.app.processEvents(QEventLoop.ExcludeUserInputEvents)
+            exclude_input = getattr(QEventLoop, "ExcludeUserInputEvents", None)
+            if exclude_input is None:
+                exclude_input = QEventLoop.ProcessEventsFlag.ExcludeUserInputEvents
+            self.app.processEvents(exclude_input)
             self._last_update = time.time()
 
     def _set_busy(self):
         self._disabled = True
-        self.mw.app.setOverrideCursor(QCursor(Qt.WaitCursor))
+        wait_cursor = getattr(Qt, "WaitCursor", None)
+        if wait_cursor is None:
+            wait_cursor = Qt.CursorShape.WaitCursor
+        self.mw.app.setOverrideCursor(QCursor(wait_cursor))
 
     def _unset_busy(self):
         self._disabled = False

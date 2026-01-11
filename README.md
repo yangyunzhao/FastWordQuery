@@ -1,5 +1,8 @@
 # FastWordQuery Addon For Anki
 
+感谢原作者提供这么方便的插件，也感谢 ChatGPT 和 Codex 帮我升级到可在 Anki 25.09.2 使用的版本，特别开心！！！
+Thanks to the original author for this convenient addon, and thanks to ChatGPT and Codex for helping me upgrade it to work with Anki 25.09.2 — so happy!!!
+
   [Supported Dictionaries](docs/services.md)
 
   [为单词添加真人发音（朗文mdx词典）](docs/get_mdx_ldoce6_sounds.md)
