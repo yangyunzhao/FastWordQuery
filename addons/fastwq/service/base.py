@@ -19,6 +19,7 @@
 
 import inspect
 import os
+import time
 # use ntpath module to ensure the windows-style (e.g. '\\LDOCE.css')
 # path can be processed on Unix platform.
 # However, anki version on mac platforms doesn't including this package?
@@ -48,6 +49,26 @@ try:
     import threading as _threading
 except ImportError:
     import dummy_threading as _threading
+
+try:
+    text_type = unicode
+except NameError:
+    text_type = str
+
+LOG_PATH = os.path.join(os.path.expanduser('~'), 'FastWQ-debug.log')
+
+
+def _log(message):
+    try:
+        if not isinstance(message, text_type):
+            message = text_type(message)
+        line = u'[{0}] {1}\n'.format(
+            time.strftime('%Y-%m-%d %H:%M:%S'), message
+        )
+        with open(LOG_PATH, 'ab') as handle:
+            handle.write(line.encode('utf-8', 'replace'))
+    except Exception:
+        pass
 
 
 __all__ = [
@@ -228,6 +249,21 @@ class Service(object):
     def _get_field(self, key, default=u''):
         return self.cache_result(key) if self.cached(key) else self._get_from_api().get(key, default)
 
+    @staticmethod
+    def media_dir():
+        try:
+            if mw and mw.col and mw.col.media:
+                return mw.col.media.dir()
+        except Exception as exc:
+            _log(u'media_dir fallback: {}'.format(exc))
+        return os.getcwd()
+
+    @staticmethod
+    def media_path(filename):
+        if os.path.isabs(filename):
+            return filename
+        return os.path.join(Service.media_dir(), filename)
+
     @property
     def unique(self):
         return self._unique
@@ -318,12 +354,15 @@ class WebService(Service):
 
         request = urllib2.Request(url, headers=default_headers)
         try:
+            _log(u'get_response start url={} timeout={}'.format(url, timeout))
             response = self._opener.open(request, data=data, timeout=timeout)
             data = response.read()
             if response.info().get('Content-Encoding') == 'gzip':
                 data = zlib.decompress(data, 16 + zlib.MAX_WBITS)
+            _log(u'get_response ok url={} bytes={}'.format(url, len(data)))
             return data
-        except:
+        except Exception as exc:
+            _log(u'get_response failed url={} error={}'.format(url, exc))
             return u''
 
     @classmethod
@@ -331,9 +370,24 @@ class WebService(Service):
         import socket
         socket.setdefaulttimeout(timeout)
         try:
-            return urllib.urlretrieve(url, filename)
-        except:
-            pass
+            target_path = cls.media_path(filename)
+            if os.path.exists(target_path):
+                _log(u'download skip exists url={} path={}'.format(url, target_path))
+                return True
+            _log(u'download start url={} path={} timeout={}'.format(url, target_path, timeout))
+            request = urllib2.Request(url, headers={
+                'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.1.6) Gecko/20091201 Firefox/3.5.6'
+            })
+            response = urllib2.urlopen(request, timeout=timeout)
+            data = response.read()
+            if response.info().get('Content-Encoding') == 'gzip':
+                data = zlib.decompress(data, 16 + zlib.MAX_WBITS)
+            with open(target_path, 'wb') as handle:
+                handle.write(data)
+            _log(u'download ok url={} path={} bytes={}'.format(url, target_path, len(data)))
+            return True
+        except Exception as exc:
+            _log(u'download failed url={} filename={} error={}'.format(url, filename, exc))
 
     class TinyDownloadError(ValueError):
         """Raises when a download is too small."""
@@ -464,12 +518,19 @@ class WebService(Service):
         See net_stream() for information about available options.
         """
         try:
+            target_path = self.media_path(path)
+            if os.path.exists(target_path):
+                _log(u'net_download skip exists path={}'.format(target_path))
+                return True
+            _log(u'net_download start path={}'.format(target_path))
             payload = self.net_stream(*args, **kwargs)
-            with open(path, 'wb') as response_output:
+            with open(target_path, 'wb') as response_output:
                 response_output.write(payload)
                 response_output.close()
+            _log(u'net_download ok path={} bytes={}'.format(target_path, len(payload)))
             return True
-        except:
+        except Exception as exc:
+            _log(u'net_download failed path={} error={}'.format(path, exc))
             return False
 
 
