@@ -20,6 +20,7 @@
 import inspect
 import os
 import time
+import tempfile
 # use ntpath module to ensure the windows-style (e.g. '\\LDOCE.css')
 # path can be processed on Unix platform.
 # However, anki version on mac platforms doesn't including this package?
@@ -55,7 +56,7 @@ try:
 except NameError:
     text_type = str
 
-LOG_PATH = os.path.join(os.path.expanduser('~'), 'FastWQ-debug.log')
+LOG_PATH = os.path.join(tempfile.gettempdir(), 'FastWQ-debug.log')
 
 
 def _log(message):
