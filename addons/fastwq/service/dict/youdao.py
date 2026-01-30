@@ -68,8 +68,8 @@ class Youdao(WebService):
                                         ".//custom-translation/translation/content"
                                     )])
             result.update({'phonetic': phonetics, 'us_phonetic': us_phonetics, 'uk_phonetic': uk_phonetics, 'explains': explains})
-        except:
-            pass
+        except Exception as exc:
+            _log(u'youdao api failed url={} error={}'.format(url, exc))
         return self.cache_this(result)
 
     @export('PHON')
@@ -114,8 +114,10 @@ class Youdao(WebService):
         audio_url = u'http://dict.youdao.com/dictvoice?audio={}&type=1'.format(self.quote_word)
         if youdao_download_mp3:
             filename = get_hex_name(self.unique.lower(), audio_url, 'mp3')
-            if os.path.exists(filename) or self.download(audio_url, filename):
+            if os.path.exists(self.media_path(filename)) or self.download(audio_url, filename):
+                _log(u'youdao british audio ready url={} filename={}'.format(audio_url, filename))
                 return self.get_anki_label(filename, 'audio')
+            _log(u'youdao british audio missing url={} filename={}'.format(audio_url, filename))
         return audio_url
 
     @export('AME_PRON')
@@ -123,8 +125,10 @@ class Youdao(WebService):
         audio_url = u'http://dict.youdao.com/dictvoice?audio={}&type=2'.format(self.quote_word)
         if youdao_download_mp3:
             filename = get_hex_name(self.unique.lower(), audio_url, 'mp3')
-            if os.path.exists(filename) or self.download(audio_url, filename):
+            if os.path.exists(self.media_path(filename)) or self.download(audio_url, filename):
+                _log(u'youdao american audio ready url={} filename={}'.format(audio_url, filename))
                 return self.get_anki_label(filename, 'audio')
+            _log(u'youdao american audio missing url={} filename={}'.format(audio_url, filename))
         return audio_url
 
     @export([u'柯林斯英汉', u'Collins'])
