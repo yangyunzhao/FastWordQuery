@@ -112,6 +112,7 @@ class Youdao(WebService):
     @export('BRE_PRON')
     def fld_british_audio(self):
         audio_url = u'http://dict.youdao.com/dictvoice?audio={}&type=1'.format(self.quote_word)
+        _log(u'youdao british audio called word={} url={}'.format(self.word, audio_url))
         if youdao_download_mp3:
             filename = get_hex_name(self.unique.lower(), audio_url, 'mp3')
             media_path = self.media_path(filename)
@@ -134,6 +135,7 @@ class Youdao(WebService):
     @export('AME_PRON')
     def fld_american_audio(self):
         audio_url = u'http://dict.youdao.com/dictvoice?audio={}&type=2'.format(self.quote_word)
+        _log(u'youdao american audio called word={} url={}'.format(self.word, audio_url))
         if youdao_download_mp3:
             filename = get_hex_name(self.unique.lower(), audio_url, 'mp3')
             media_path = self.media_path(filename)

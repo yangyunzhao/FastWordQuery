@@ -327,7 +327,18 @@ class Service(object):
     def active(self, fld_ord, word):
         self.word = word
         if fld_ord >= 0 and fld_ord < len(self.actions):
-            return self.actions[fld_ord]()
+            try:
+                label = self.fields[fld_ord]
+            except Exception:
+                label = None
+            _log(u'active field index={} label={} word={}'.format(
+                fld_ord, label, word
+            ))
+            result = self.actions[fld_ord]()
+            _log(u'active field result index={} label={} type={}'.format(
+                fld_ord, label, type(result)
+            ))
+            return result
         return QueryResult.default()
 
     @staticmethod
