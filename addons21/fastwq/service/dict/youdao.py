@@ -68,8 +68,8 @@ class Youdao(WebService):
                                         ".//custom-translation/translation/content"
                                     )])
             result.update({'phonetic': phonetics, 'us_phonetic': us_phonetics, 'uk_phonetic': uk_phonetics, 'explains': explains})
-        except:
-            pass
+        except Exception as exc:
+            _log(u'youdao api failed url={} error={}'.format(url, exc))
         return self.cache_this(result)
 
     @export('PHON')
@@ -114,8 +114,21 @@ class Youdao(WebService):
         audio_url = u'http://dict.youdao.com/dictvoice?audio={}&type=1'.format(self.quote_word)
         if youdao_download_mp3:
             filename = get_hex_name(self.unique.lower(), audio_url, 'mp3')
-            if os.path.exists(filename) or self.download(audio_url, filename):
-                return self.get_anki_label(filename, 'audio')
+            media_path = self.media_path(filename)
+            exists_before = os.path.exists(media_path)
+            _log(u'youdao british audio check url={} filename={} path={} exists_before={}'.format(
+                audio_url, filename, media_path, exists_before
+            ))
+            if exists_before or self.download(audio_url, filename):
+                exists_after = os.path.exists(media_path)
+                _log(u'youdao british audio download result url={} filename={} path={} exists_after={}'.format(
+                    audio_url, filename, media_path, exists_after
+                ))
+                if exists_after:
+                    return self.get_anki_label(filename, 'audio')
+            _log(u'youdao british audio missing url={} filename={} path={}'.format(
+                audio_url, filename, media_path
+            ))
         return audio_url
 
     @export('AME_PRON')
@@ -123,8 +136,21 @@ class Youdao(WebService):
         audio_url = u'http://dict.youdao.com/dictvoice?audio={}&type=2'.format(self.quote_word)
         if youdao_download_mp3:
             filename = get_hex_name(self.unique.lower(), audio_url, 'mp3')
-            if os.path.exists(filename) or self.download(audio_url, filename):
-                return self.get_anki_label(filename, 'audio')
+            media_path = self.media_path(filename)
+            exists_before = os.path.exists(media_path)
+            _log(u'youdao american audio check url={} filename={} path={} exists_before={}'.format(
+                audio_url, filename, media_path, exists_before
+            ))
+            if exists_before or self.download(audio_url, filename):
+                exists_after = os.path.exists(media_path)
+                _log(u'youdao american audio download result url={} filename={} path={} exists_after={}'.format(
+                    audio_url, filename, media_path, exists_after
+                ))
+                if exists_after:
+                    return self.get_anki_label(filename, 'audio')
+            _log(u'youdao american audio missing url={} filename={} path={}'.format(
+                audio_url, filename, media_path
+            ))
         return audio_url
 
     @export([u'柯林斯英汉', u'Collins'])
