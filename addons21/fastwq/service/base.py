@@ -85,7 +85,7 @@ def _log(message):
 
 
 __all__ = [
-    'register', 'export', 'copy_static_file', 'with_styles', 'parse_html', 'service_wrap', 'get_hex_name',
+    '_log', 'register', 'export', 'copy_static_file', 'with_styles', 'parse_html', 'service_wrap', 'get_hex_name',
     'Service', 'WebService', 'LocalService', 'MdxService', 'StardictService', 'QueryResult'
 ]
 
