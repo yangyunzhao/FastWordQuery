@@ -7,18 +7,6 @@ Thanks to the original author for this convenient addon, and thanks to ChatGPT a
 
   [为单词添加真人发音（朗文mdx词典）](docs/get_mdx_ldoce6_sounds.md)
 
-
-
-## Features
-
-This addon query words definitions or examples etc. fields from local or online dictionaries to fill into the Anki note.  
-It forks from [WordQuery](https://github.com/finalion/WordQuery), added **multi-thread** feature, improve stability, and some other features.
-
-  - Querying Words and Making Cards, IMMEDIATELY!
-  - Support querying in mdx and stardict dictionaries.
-  - Support querying in web dictionaries.
-  - Support **Multi-Thread** to query faster.
-
 ## 克隆后改动记录
 - 适配 Anki 25.09.2
 - 修复下载音频文件失效的问题
@@ -38,6 +26,16 @@ It forks from [WordQuery](https://github.com/finalion/WordQuery), added **multi-
 2. `git clone` this project locally, then copy everything under `${root}/addons21/fastwq` into the newly created folder.
 3. Disable the previous fastwq addon.
 4. Restart Anki.
+
+## Features
+
+This addon query words definitions or examples etc. fields from local or online dictionaries to fill into the Anki note.  
+It forks from [WordQuery](https://github.com/finalion/WordQuery), added **multi-thread** feature, improve stability, and some other features.
+
+  - Querying Words and Making Cards, IMMEDIATELY!
+  - Support querying in mdx and stardict dictionaries.
+  - Support querying in web dictionaries.
+  - Support **Multi-Thread** to query faster.
 
 ## Install
 
