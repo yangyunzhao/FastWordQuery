@@ -7,7 +7,25 @@ Thanks to the original author for this convenient addon, and thanks to ChatGPT a
 
   [为单词添加真人发音（朗文mdx词典）](docs/get_mdx_ldoce6_sounds.md)
 
+## 克隆后改动记录
+- 适配 Anki 25.09.2
+- 修复下载音频文件失效的问题
 
+## Post-clone Changes
+- Adapted for Anki 25.09.2
+- Fixed audio download failures
+
+## 克隆后安装方式
+1. 在原插件的同级目录新建任意文件夹（推荐命名为 fastwq）。
+2. git clone 本项目到本地磁盘，将 `${root}/addons21/fastwq` 下的全部文件复制到刚刚新建的文件夹中。
+3. 禁用之前的 fastwq 插件。
+4. 重启 Anki 即可。
+
+## Post-clone Installation
+1. Create a new folder alongside the original addon folder (recommended name: `fastwq`).
+2. `git clone` this project locally, then copy everything under `${root}/addons21/fastwq` into the newly created folder.
+3. Disable the previous fastwq addon.
+4. Restart Anki.
 
 ## Features
 
@@ -18,14 +36,6 @@ It forks from [WordQuery](https://github.com/finalion/WordQuery), added **multi-
   - Support querying in mdx and stardict dictionaries.
   - Support querying in web dictionaries.
   - Support **Multi-Thread** to query faster.
-
-## 克隆后改动记录
-- 适配 Anki 25.09.2
-- 修复下载音频文件失效的问题
-
-## Post-clone Changes
-- Adapted for Anki 25.09.2
-- Fixed audio download failures
 
 ## Install
 
