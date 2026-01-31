@@ -20,6 +20,8 @@
 import inspect
 import os
 import random
+import time
+import tempfile
 # use ntpath module to ensure the windows-style (e.g. '\\LDOCE.css')
 # path can be processed on Unix platform.
 # However, anki version on mac platforms doesn't including this package?
@@ -60,6 +62,26 @@ try:
     import threading as _threading
 except ImportError:
     import dummy_threading as _threading
+
+try:
+    text_type = unicode
+except NameError:
+    text_type = str
+
+LOG_PATH = os.path.join(tempfile.gettempdir(), 'FastWQ-debug.log')
+
+
+def _log(message):
+    try:
+        if not isinstance(message, text_type):
+            message = text_type(message)
+        line = u'[{0}] {1}\n'.format(
+            time.strftime('%Y-%m-%d %H:%M:%S'), message
+        )
+        with open(LOG_PATH, 'ab') as handle:
+            handle.write(line.encode('utf-8', 'replace'))
+    except Exception:
+        pass
 
 
 __all__ = [
@@ -239,6 +261,21 @@ class Service(object):
     def _get_field(self, key, default=u''):
         return self.cache_result(key) if self.cached(key) else self._get_from_api().get(key, default)
 
+    @staticmethod
+    def media_dir():
+        try:
+            if mw and mw.col and mw.col.media:
+                return mw.col.media.dir()
+        except Exception as exc:
+            _log(u'media_dir fallback: {}'.format(exc))
+        return os.getcwd()
+
+    @staticmethod
+    def media_path(filename):
+        if os.path.isabs(filename):
+            return filename
+        return os.path.join(Service.media_dir(), filename)
+
     @property
     def unique(self):
         return self._unique
@@ -290,7 +327,24 @@ class Service(object):
     def active(self, fld_ord, word):
         self.word = word
         if fld_ord >= 0 and fld_ord < len(self.actions):
-            return self.actions[fld_ord]()
+            try:
+                label = self.fields[fld_ord]
+            except Exception:
+                label = None
+            _log(u'active field index={} label={} word={}'.format(
+                fld_ord, label, word
+            ))
+            try:
+                result = self.actions[fld_ord]()
+            except Exception as exc:
+                _log(u'active field error index={} label={} error={}'.format(
+                    fld_ord, label, exc
+                ))
+                return QueryResult.default()
+            _log(u'active field result index={} label={} type={}'.format(
+                fld_ord, label, type(result)
+            ))
+            return result
         return QueryResult.default()
 
     @staticmethod
@@ -298,7 +352,11 @@ class Service(object):
         formats = {'audio': config.sound_str,
                    'img': u'<img src="{0}">',
                    'video': u'<video controls="controls" width="100%" height="auto" src="{0}"></video>'}
-        return formats[type_].format(filename)
+        label = formats[type_].format(filename)
+        _log(u'get_anki_label type={} filename={} sound_str={} label={}'.format(
+            type_, filename, config.sound_str, label
+        ))
+        return label
 
 
 class WebService(Service):
@@ -326,12 +384,15 @@ class WebService(Service):
 
         request = urllib2.Request(url, headers=default_headers)
         try:
+            _log(u'get_response start url={} timeout={}'.format(url, timeout))
             response = self._opener.open(request, data=data, timeout=timeout)
             data = response.read()
             if response.info().get('Content-Encoding') == 'gzip':
                 data = zlib.decompress(data, 16 + zlib.MAX_WBITS)
+            _log(u'get_response ok url={} bytes={}'.format(url, len(data)))
             return data
-        except Exception:
+        except Exception as exc:
+            _log(u'get_response failed url={} error={}'.format(url, exc))
             return u''
 
     @classmethod
@@ -339,13 +400,20 @@ class WebService(Service):
         import socket
         socket.setdefaulttimeout(timeout)
         try:
-            with open(filename, "wb") as f:
-                f.write(requests.get(url, headers={
-                    'User-Agent': _default_ua
-                }).content)
+            target_path = cls.media_path(filename)
+            if os.path.exists(target_path):
+                _log(u'download skip exists url={} path={}'.format(url, target_path))
+                return True
+            _log(u'download start url={} path={} timeout={}'.format(url, target_path, timeout))
+            response = requests.get(url, headers={
+                'User-Agent': _default_ua
+            }, timeout=timeout)
+            with open(target_path, "wb") as f:
+                f.write(response.content)
+            _log(u'download ok url={} path={} bytes={}'.format(url, target_path, len(response.content)))
             return True
-        except Exception:
-            pass
+        except Exception as exc:
+            _log(u'download failed url={} filename={} error={}'.format(url, filename, exc))
 
     class TinyDownloadError(ValueError):
         """Raises when a download is too small."""
@@ -473,12 +541,19 @@ class WebService(Service):
         See net_stream() for information about available options.
         """
         try:
+            target_path = self.media_path(path)
+            if os.path.exists(target_path):
+                _log(u'net_download skip exists path={}'.format(target_path))
+                return True
+            _log(u'net_download start path={}'.format(target_path))
             payload = self.net_stream(*args, **kwargs)
-            with open(path, 'wb') as f:
+            with open(target_path, 'wb') as f:
                 f.write(payload)
                 f.close()
+            _log(u'net_download ok path={} bytes={}'.format(target_path, len(payload)))
             return True
-        except Exception:
+        except Exception as exc:
+            _log(u'net_download failed path={} error={}'.format(path, exc))
             return False
 
 
