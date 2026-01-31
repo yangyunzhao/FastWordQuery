@@ -334,7 +334,13 @@ class Service(object):
             _log(u'active field index={} label={} word={}'.format(
                 fld_ord, label, word
             ))
-            result = self.actions[fld_ord]()
+            try:
+                result = self.actions[fld_ord]()
+            except Exception as exc:
+                _log(u'active field error index={} label={} error={}'.format(
+                    fld_ord, label, exc
+                ))
+                return QueryResult.default()
             _log(u'active field result index={} label={} type={}'.format(
                 fld_ord, label, type(result)
             ))
