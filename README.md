@@ -19,6 +19,14 @@ It forks from [WordQuery](https://github.com/finalion/WordQuery), added **multi-
   - Support querying in web dictionaries.
   - Support **Multi-Thread** to query faster.
 
+## 克隆后改动记录
+- 适配 Anki 25.09.2
+- 修复下载音频文件失效的问题
+
+## Post-clone Changes
+- Adapted for Anki 25.09.2
+- Fixed audio download failures
+
 ## Install
 
    1. Place addons or addons21 folder of this repository to anki addon folder.  
